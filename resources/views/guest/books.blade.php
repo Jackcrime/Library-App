@@ -1,182 +1,371 @@
 @extends('layouts.nav')
 
 @section('contents')
-<div x-data="{
-    showModal: false,
-    book: { title: '', cover: '', author: '', publisher: '', isbn: '', year: '', description: '', rating: 0 },
-    searchQuery: '',
-    favoriteBooks: [],
-    wishlist: [],
-    userReviews: {},
-    selectedCategory: '',
-    notification: '',
-    showNotification: false,
-    newReview: '',
-    showBook(id, title, cover, author, publisher, isbn, year, description, rating, kategori) {
-        this.book = { id, title, cover, author, publisher, isbn, year, description, rating, kategori };
-        this.showModal = true;
-        this.newReview = '';
-    },
-    addReview(bookId, review) {
-        if (review.trim() === '') {
-            this.notification = 'Ulasan tidak boleh kosong!';
-            this.showNotification = true;
-            return;
+<style>
+    @keyframes fade-in-down {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
         }
 
-        fetch(`/books/${bookId}/reviews`, {
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-down {
+        animation: fade-in-down 0.5s ease-out;
+    }
+</style>
+<div class="m-10" x-data="{
+    open: false,
+    showForm: false,
+    isBorrowed: false,
+    openImagePreview: false,
+    book: {},
+    isFavorited: false,
+    isBookmarked: false,
+        initBook(book) {
+        this.book = book;
+        this.isFavorited = localStorage.getItem('favorited_' + book.id) === 'true';
+        this.isBookmarked = localStorage.getItem('bookmarked_' + book.id) === 'true';
+    },
+
+    toggleFavorite() {
+        this.isFavorited = !this.isFavorited;
+        localStorage.setItem('favorited_' + this.book.id, this.isFavorited);
+
+        fetch(`/book/favorite/${this.book.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ review })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.notification = 'Ulasan berhasil dikirim!';
-                this.showNotification = true;
-                this.newReview = '';
-            } else {
-                this.notification = 'Gagal mengirim ulasan. Silakan coba lagi.';
-                this.showNotification = true;
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            this.notification = 'Terjadi kesalahan. Silakan coba lagi.';
-            this.showNotification = true;
-        });
+        .then(res => res.json())
+        .then(data => {
+            this.isFavorited = data.status === 'added';
+            localStorage.setItem('favorited_' + this.book.id, this.isFavorited);
+
+            Swal.fire({
+                icon: data.status === 'added' ? 'success' : 'info',
+                title: data.status === 'added' ? 'Berhasil ditambahkan ke Favorit!' : 'Dihapus dari Favorit!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        })
+        .catch(error => console.error('Error favoriting the book:', error));
+    },
+
+    toggleBookmark() {
+        this.isBookmarked = !this.isBookmarked;
+        localStorage.setItem('bookmarked_' + this.book.id, this.isBookmarked);
+
+        fetch(`/book/bookmark/${this.book.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.isBookmarked = data.status === 'added';
+            localStorage.setItem('bookmarked_' + this.book.id, this.isBookmarked);
+
+            Swal.fire({
+                icon: data.status === 'added' ? 'success' : 'info',
+                title: data.status === 'added' ? 'Berhasil dibookmark!' : 'Bookmark dihapus!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        })
+        .catch(error => console.error('Error bookmarking the book:', error));
     }
-}" class="p-6 min-h-screen transition-all duration-300 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white">
+}">
+    <h1 class="text-5xl font-extrabold text-center mb-14 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-teal-400 to-emerald-200 animate-pulse drop-shadow-md">
+        <i class="fas fa-book-open mr-3"></i> Discovery Book
+    </h1>
 
-    <!-- Header -->
-    <div class="container mx-auto text-center mt-10">
-        <h1 class="text-5xl font-extrabold tracking-wide">Discovery Library</h1>
-        <p class="text-lg text-gray-600 dark:text-gray-300 mt-2">Temukan buku berdasarkan kategori</p>
+    <!-- Filter Kategori + Search Bar -->
+    <div class="flex flex-col md:flex-row gap-4 justify-between mb-8">
+        <!-- Input Pencarian -->
+        <input type="text" id="searchInput"
+            placeholder="Cari judul buku..."
+            class="w-full md:w-1/2 p-3 rounded-xl border border-blue-300 shadow focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300">
+
+        <!-- Dropdown Filter Kategori -->
+        <select id="filterKategori"
+            class="w-full md:w-1/3 p-3 rounded-xl border border-blue-300 shadow focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300">
+            <option value="">Semua Kategori</option>
+            @foreach ($kategoris as $kategori)
+            <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <!-- Notification -->
-    <div x-show="showNotification" class="fixed top-0 right-0 m-4 p-4 bg-green-500 text-white rounded-lg" x-text="notification"></div>
 
-    <!-- Buku Populer -->
-    <div class="container mx-auto mt-10">
-        <h2 class="text-4xl font-semibold text-center mb-8">Buku Populer</h2>
-        <div class="overflow-hidden" style="scroll-behavior: smooth;">
-            <div class="flex gap-4">
-                @foreach($bukusPopuler as $book)
-                <div class="relative group bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden transform transition-all hover:scale-105 w-64">
-                    <img src="{{ asset('storage/' . $book->foto) }}" alt="{{ $book->judul }}" class="w-full h-80 object-cover transition-transform duration-300">
-                    <div class="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:opacity-100 opacity-0 flex flex-col justify-between p-5">
-                        <h2 class="text-xl font-semibold text-white truncate">{{ $book->judul }}</h2>
-                        <div class="flex items-center justify-center gap-4 mt-auto pb-2">
-                            <button id="fav-{{ $book->id }}" class="favorite-btn text-white border-2 border-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:bg-red-500 hover:border-red-500">
-                                <i class="fas fa-heart text-sm"></i>
-                            </button>
-                            <button @click="showBook({{ $book->id }}, {!! json_encode($book->judul) !!}, '{{ asset('storage/' . $book->foto) }}', {!! json_encode($book->penulis) !!}, {!! json_encode($book->penerbit) !!}, {!! json_encode($book->isbn) !!}, {!! json_encode($book->tahun) !!}, {!! json_encode($book->deskripsi) !!}, {{ $book->rating }}, '{{ $book->kategori ? $book->kategori->nama : 'Tanpa Kategori' }}')"
-                                id="detail-{{ $book->id }}"
-                                class="bg-blue-500 text-white font-bold py-2 px-6 rounded-md text-center transition-opacity duration-300 opacity-0 group-hover:opacity-100 w-auto hover:bg-blue-600">
-                                Detail
-                            </button>
-                            <button id="bookmark-{{ $book->id }}" class="bookmark-btn text-white border-2 border-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:bg-yellow-500 hover:border-yellow-500">
-                                <i class="fas fa-bookmark text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
+    <!-- Book List -->
+    <div class="container mx-auto px-4">
+        <div id="bookList" class="mt-6 w-full">
+            @include('guest.partials.book_list', ['books' => $books])
         </div>
     </div>
 
-    <!-- Buku Baru -->
-    <div class="container mx-auto mt-10">
-        <h2 class="text-4xl font-semibold text-center mb-8">Buku Baru</h2>
-        <div class="overflow-hidden" style="scroll-behavior: smooth;">
-            <div class="flex gap-4">
-                @foreach($bukusBaru as $book)
-                <div class="relative group bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden transform transition-all hover:scale-105 w-64">
-                    <img src="{{ asset('storage/' . $book->foto) }}" alt="{{ $book->judul }}" class="w-full h-80 object-cover transition-transform duration-300">
-                    <div class="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:opacity-100 opacity-0 flex flex-col justify-between p-5">
-                        <h2 class="text-xl font-semibold text-white truncate">{{ $book->judul }}</h2>
-                        <div class="flex items-center justify-center gap-4 mt-auto pb-2">
-                            <button id="fav-{{ $book->id }}" class="favorite-btn text-white border-2 border-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:bg-red-500 hover:border-red-500">
-                                <i class="fas fa-heart text-sm"></i>
-                            </button>
-                            <button @click="showBook({{ $book->id }}, {!! json_encode($book->judul) !!}, '{{ asset('storage/' . $book->foto) }}', {!! json_encode($book->penulis) !!}, {!! json_encode($book->penerbit) !!}, {!! json_encode($book->isbn) !!}, {!! json_encode($book->tahun) !!}, {!! json_encode($book->deskripsi) !!}, {{ $book->rating }}, '{{ $book->kategori ? $book->kategori->nama : 'Tanpa Kategori' }}')"
-                                id="detail-{{ $book->id }}"
-                                class="bg-blue-500 text-white font-bold py-2 px-6 rounded-md text-center transition-opacity duration-300 opacity-0 group-hover:opacity-100 w-auto hover:bg-blue-600">
-                                Detail
-                            </button>
-                            <button id="bookmark-{{ $book->id }}" class="bookmark-btn text-white border-2 border-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:bg-yellow-500 hover:border-yellow-500">
-                                <i class="fas fa-bookmark text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
+    <!-- Section Title Component -->
+    @php
+    function sectionTitle($title) {
+    return <<<HTML
+        <div class="flex items-center gap-3 mt-14 mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">$title</h2>
+        <div class="flex-grow h-1 bg-gradient-to-r from-blue-400 via-teal-400 to-emerald-200 rounded-full animate-[pulse_2s_infinite]"></div>
     </div>
+    HTML;
+    }
+    @endphp
 
-    <div class="container mx-auto mt-10 mb-10">
-        <div class="flex justify-center space-x-4 overflow-hidden">
-            <button class="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105" onclick="filterBooks('')">
-                Semua Kategori
-            </button>
-            <div class="flex space-x-4 overflow-x-auto py-2 px-2" style="scroll-behavior: smooth;">
-                @foreach($kategoris as $kategori)
-                <button class="bg-gray-300 text-gray-800 py-2 px-6 rounded-lg hover:bg-gray-400 transition duration-300 ease-in-out transform hover:scale-105" onclick="filterBooks('{{ $kategori->id }}')">
-                    {{ $kategori->nama }}
+    {!! sectionTitle('Popular Books') !!}
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @foreach($bukuPopuler as $buku)
+        <div class="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 min-h-[400px]">
+            <img src="{{ $buku->foto ? asset('storage/' . $buku->foto) : 'https://via.placeholder.com/150' }}"
+                alt="{{ $buku->judul }}"
+                class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+
+            <div class="absolute top-0 left-0 right-0 bg-black/60 text-white text-center py-2 opacity-0 -translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition duration-300 z-10">
+                <h3 class="text-base font-semibold truncate px-4">{{ $buku->judul }}</h3>
+            </div>
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 p-4">
+                <button @click="open = true; initBook({{ json_encode($buku) }})"
+                    class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold shadow-md ring-2 ring-blue-300 hover:ring-4 transition-all duration-300">
+                    View Details
                 </button>
-                @endforeach
             </div>
-            <div id="books-list" class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                @foreach($books as $book)
-                <div class="bg-white p-4 border rounded-lg shadow-md">
-                    <h3 class="font-semibold text-lg">{{ $book->title }}</h3>
-                    <p class="text-gray-600">{{ $book->description }}</p>
+        </div>
+        @endforeach
+    </div>
+
+    {!! sectionTitle('New Arrivals') !!}
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @foreach($bukuBaru as $buku)
+        <div class="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 min-h-[400px]">
+            <img src="{{ $buku->foto ? asset('storage/' . $buku->foto) : 'https://via.placeholder.com/150' }}"
+                alt="{{ $buku->judul }}"
+                class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+
+            <div class="absolute top-0 left-0 right-0 bg-black/60 text-white text-center py-2 opacity-0 -translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition duration-300 z-10">
+                <h3 class="text-base font-semibold truncate px-4">{{ $buku->judul }}</h3>
+            </div>
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 p-4">
+                <button @click="open = true; initBook({{ json_encode($buku) }})"
+                    class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold shadow-md ring-2 ring-blue-300 hover:ring-4 transition-all duration-300">
+                    View Details
+                </button>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    {!! sectionTitle('All Books') !!}
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @foreach($books as $buku)
+        <div class="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 min-h-[400px]">
+            <img src="{{ $buku->foto ? asset('storage/' . $buku->foto) : 'https://via.placeholder.com/150' }}"
+                alt="{{ $buku->judul }}"
+                class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+
+            <div class="absolute top-0 left-0 right-0 bg-black/60 text-white text-center py-2 opacity-0 -translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition duration-300 z-10">
+                <h3 class="text-base font-semibold truncate px-4">{{ $buku->judul }}</h3>
+            </div>
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 p-4">
+                <button @click="open = true; initBook({{ json_encode($buku) }})"
+                    class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold shadow-md ring-2 ring-blue-300 hover:ring-4 transition-all duration-300">
+                    View Details
+                </button>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- CTA Button -->
+    <div class="mt-16 text-center">
+        <a href="{{ route('book.all') }}"
+            class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-teal-500 to-indigo-500 text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform duration-300 shadow-xl hover:shadow-2xl">
+            <i class="fas fa-arrow-right animate-bounce"></i> See All Books
+        </a>
+    </div>
+
+
+    <!-- Wrapper backdrop -->
+    <div x-show="open" @click.away="open = false"
+        class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/70 p-6 transition-all duration-300 ease-in-out"
+        x-cloak>
+
+        <!-- Modal content -->
+        <div class="bg-white/30 backdrop-blur-xl rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] border border-white/40 w-full max-w-5xl px-8 py-6 relative animate-fade-in-down text-gray-800 transition-all duration-300">
+
+            <!-- Close button -->
+            <button @click="open = false"
+                class="absolute top-4 right-4 text-white hover:text-red-500 text-3xl font-bold transition-all duration-200 z-50">
+                &times;
+            </button>
+
+            <!-- Container for Image + Info -->
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Book Image -->
+                <div class="md:w-1/2 w-full aspect-[3/4] md:aspect-[4/5] overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/10">
+                    <img :src="book.foto ? '/storage/' + book.foto : 'https://via.placeholder.com/150'"
+                        alt="Book Cover"
+                        class="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500 ease-in-out rounded-xl">
                 </div>
-                @endforeach
+
+                <!-- Book Info -->
+                <div class="md:w-1/2 w-full">
+                    <!-- Title -->
+                    <h3 class="text-3xl font-extrabold text-white text-center md:text-left mb-4 tracking-tight drop-shadow-md" x-text="book.judul"></h3>
+
+                    <!-- Detail Info -->
+                    <ul class="text-white/90 text-sm space-y-2 mb-4">
+                        <li><i class="fas fa-pen-nib text-blue-300 mr-2"></i><strong>Author:</strong> <span x-text="book.penulis"></span></li>
+                        <li><i class="fas fa-building text-green-300 mr-2"></i><strong>Publisher:</strong> <span x-text="book.penerbit"></span></li>
+                        <li><i class="fas fa-barcode text-purple-300 mr-2"></i><strong>ISBN:</strong> <span x-text="book.isbn"></span></li>
+                        <li><i class="fas fa-calendar-alt text-orange-300 mr-2"></i><strong>Year:</strong> <span x-text="book.tahun"></span></li>
+                        <li><i class="fas fa-layer-group text-teal-300 mr-2"></i><strong>Copies:</strong> <span x-text="book.jumlah"></span></li>
+                    </ul>
+
+                    <!-- Synopsis -->
+                    <div class="bg-white/80 text-gray-900 text-sm rounded-xl px-4 py-3 border border-white/60 shadow-inner max-h-40 overflow-y-auto backdrop-blur-sm">
+                        <p x-text="book.deskripsi"></p>
+                    </div>
+
+                    <!-- Favorite / Bookmark / Borrow -->
+                    <div class="flex flex-wrap gap-4 mt-5">
+                        <button @click="toggleFavorite"
+                            :class="isFavorited ? 'bg-red-600' : 'bg-red-500'"
+                            class="text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105">
+                            <i :class="isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+                            <span x-text="isFavorited ? 'Favorited' : 'Favorite'"></span>
+                        </button>
+
+                        <button type="button"
+                            @click="showForm = true"
+                            class="bg-blue-500 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-book"></i>
+                            <span>Borrow</span>
+                        </button>
+
+                        <button @click="toggleBookmark"
+                            :class="isBookmarked ? 'bg-yellow-600' : 'bg-yellow-500'"
+                            class="text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105">
+                            <i :class="isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+                            <span x-text="isBookmarked ? 'Bookmarked' : 'Bookmark'"></span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Detail Buku -->
-    <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl max-w-4xl w-full h-auto relative absolute top-10">
-            <button @click="showModal = false" class="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-red-600">
-                <i class="fas fa-times"></i>
+    <!-- Modal Formulir Peminjaman -->
+    <div x-show="showForm" x-cloak
+        class="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm transition duration-300">
+
+        <div @click.away="showForm = false"
+            class="bg-white rounded-2xl p-6 w-full max-w-4xl shadow-xl relative">
+
+            <!-- Tombol Close -->
+            <button @click="showForm = false"
+                class="absolute top-3 right-4 text-xl font-bold text-gray-700 hover:text-red-500">
+                &times;
             </button>
-            <div class="flex flex-col md:flex-row gap-6">
-                <img :src="book.cover" class="w-full md:w-1/3 rounded-lg shadow-md">
-                <div class="w-full md:w-2/3">
-                    <h2 x-text="book.title" class="text-2xl font-bold"></h2>
-                    <p class="mt-2"><i class="fas fa-user"></i> <strong>Penulis:</strong> <span x-text="book.author"></span></p>
-                    <p><i class="fas fa-building"></i> <strong>Penerbit:</strong> <span x-text="book.publisher"></span></p>
-                    <p><i class="fas fa-barcode"></i> <strong>ISBN:</strong> <span x-text="book.isbn"></span></p>
-                    <p><i class="fas fa-calendar-alt"></i> <strong>Tahun:</strong> <span x-text="book.year"></span></p>
-                    <p><i class="fa fa-tag"></i> <strong>Kategori:</strong> <span x-text="book.kategori"></span></p>
-                    <p class="mt-3"><i class="fas fa-info-circle"></i> <strong>Deskripsi:</strong> <span x-text="book.description"></span></p>
 
-                    <!-- Rating -->
-                    <div class="mt-4">
-                        <p><i class="fas fa-star"></i> <strong>Rating:</strong></p>
-                        <div x-data="{ rating: book.rating }">
-                            <template x-for="star in 5">
-                                <span @click="rating = star" :class="rating >= star ? 'text-yellow-400' : 'text-gray-400'">
-                                    <i class="fas fa-star"></i>
-                                </span>
-                            </template>
+            <!-- Grid Utama -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Kolom Kiri: Formulir -->
+                <div>
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Formulir Peminjaman Buku</h2>
+
+                    <form method="POST" action="{{ route('guest.pinjam') }}">
+                        @csrf
+                        <input type="hidden" name="buku_id" :value="book.id">
+
+                        <!-- Nama -->
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-700">Nama</label>
+                            <input type="text" value="{{ Auth::user()->nama }}" disabled
+                                class="w-full mt-1 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 cursor-not-allowed">
                         </div>
-                    </div>
 
-                    <!-- Review -->
-                    <textarea x-model="newReview" class="w-full p-3 mt-4 border rounded-lg text-black" placeholder="Tulis ulasan..."></textarea>
-                    <button @click="addReview(book.id, newReview)" class="mt-2 w-full py-2 bg-blue-500 text-white rounded-lg">
-                        <i class="fas fa-paper-plane"></i> Kirim Ulasan
-                    </button>
+                        <!-- Tanggal Pinjam -->
+                        <div class="mb-3">
+                            <label class="text-sm text-gray-700">Tanggal Pinjam</label>
+                            <input type="date" name="tgl_pinjam"
+                                value="{{ now()->format('Y-m-d') }}"
+                                class="w-full mt-1 px-4 py-2 rounded-lg border border-gray-300">
+                        </div>
+
+                        <!-- Tanggal Kembali -->
+                        <div class="mb-4">
+                            <label class="text-sm text-gray-700">Tanggal Kembali</label>
+                            <input type="date" name="tgl_kembali"
+                                value="{{ now()->addDays(7)->format('Y-m-d') }}"
+                                class="w-full mt-1 px-4 py-2 rounded-lg border border-gray-300">
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="flex justify-end gap-2">
+                            <button type="button" @click="showForm = false"
+                                class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Pinjam
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Preview Gambar -->
+                <div
+                    x-show="openImagePreview"
+                    x-cloak
+                    @click.away="openImagePreview = false"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition duration-300">
+                    <div class="relative">
+                        <!-- Tombol Close -->
+                        <button
+                            @click="openImagePreview = false"
+                            class="absolute top-2 right-2 z-10 text-white text-3xl font-bold hover:text-red-400 transition">
+                            &times;
+                        </button>
+
+                        <!-- Gambar Preview -->
+                        <img
+                            :src="book.foto ? '/storage/' + book.foto : 'https://via.placeholder.com/300x400'"
+                            alt="Book Preview"
+                            class="max-w-full max-h-screen rounded-lg shadow-2xl">
+                    </div>
+                </div>
+
+                <!-- Kolom Gambar Buku dengan Judul (klik untuk preview) -->
+                <div class="relative w-full h-60 rounded-lg overflow-hidden shadow-lg cursor-pointer"
+                    @click="openImagePreview = true">
+                    <!-- Gambar -->
+                    <img
+                        :src="book.foto ? '/storage/' + book.foto : 'https://via.placeholder.com/300x400'"
+                        alt="Book Cover"
+                        class="w-full h-full object-cover object-top transition duration-300 hover:scale-105">
+
+                    <!-- Judul Buku -->
+                    <div class="absolute top-0 left-0 w-full bg-black/50 px-4 py-2">
+                        <h3 class="text-white text-base font-semibold truncate" x-text="book.judul"></h3>
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,42 +373,44 @@
 </div>
 
 <script>
-    // JavaScript for category selection and filtering
-    function filterBooks(categoryId) {
-        const booksList = document.getElementById('books-list');
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const filterKategori = document.getElementById('filterKategori');
 
-        fetch(`/filter-books?category_id=${categoryId}`)
-            .then(response => response.json())
-            .then(data => {
-                booksList.innerHTML = data.books.map(book => `
-                    <div class="bg-white p-4 border rounded-lg shadow-md">
-                        <h3 class="font-semibold text-lg">${book.title}</h3>
-                        <p class="text-gray-600">${book.description}</p>
-                    </div>
-                `).join('');
-            });
+    function fetchFilteredBooks() {
+        const query = searchInput.value.trim();
+        const category = filterKategori.value;
+
+        let url = '/book';
+        const params = [];
+
+        if (query !== '') {
+            params.push(`query=${encodeURIComponent(query)}`);
+        }
+
+        if (category !== '' && category !== 'all') {
+            params.push(`kategori=${category}`);
+        }
+
+        if (params.length > 0) {
+            url += '?' + params.join('&');
+        }
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('bookList').innerHTML = html;
+        })
+        .catch(err => console.error('Error fetching filtered books:', err));
     }
 
-    // Handle click events for favorite and bookmark buttons
-    document.querySelectorAll('.favorite-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const bookId = button.id.split('-')[1];
-            button.classList.toggle('text-red-500');
-            button.classList.toggle('text-white');
-            button.classList.toggle('border-red-500');
-            button.classList.toggle('border-white');
-        });
-    });
+    searchInput.addEventListener('input', fetchFilteredBooks);
+    filterKategori.addEventListener('change', fetchFilteredBooks);
+});
 
-    document.querySelectorAll('.bookmark-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const bookId = button.id.split('-')[1];
-            button.classList.toggle('text-blue-500');
-            button.classList.toggle('text-white');
-            button.classList.toggle('border-blue-500');
-            button.classList.toggle('border-white');
-        });
-    });
 </script>
-
 @endsection

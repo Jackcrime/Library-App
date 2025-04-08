@@ -60,53 +60,6 @@
     </div>
 </section>
 
-<!-- 📖🔥 Reading Challenge -->
-<section class="bg-gray-100 py-16 text-center">
-    <h2 class="text-4xl font-bold text-purple-700">📖🔥 Reading Challenge</h2>
-    <p class="mt-4 text-gray-600">Tantang dirimu untuk membaca lebih banyak buku dan dapatkan hadiah menarik! 🏆</p>
-
-    <!-- 🎯 Level Tantangan -->
-    <div class="max-w-4xl mx-auto mt-8 text-left bg-white text-gray-800 p-6 rounded-lg shadow-md">
-        <h3 class="text-2xl font-bold text-green-600">🏆 Level Tantangan</h3>
-        <ul class="mt-4 space-y-4">
-            <li class="p-4 bg-green-100 rounded-lg shadow">
-                <strong>📗 Pemula</strong>: Baca 5 buku dalam 1 bulan
-                <span class="text-sm text-gray-600 block">Hadiah: Badge "Book Explorer" + 50 Poin</span>
-            </li>
-            <li class="p-4 bg-blue-100 rounded-lg shadow">
-                <strong>📘 Menengah</strong>: Baca 10 buku dalam 1 bulan
-                <span class="text-sm text-gray-600 block">Hadiah: Badge "Book Master" + 100 Poin</span>
-            </li>
-            <li class="p-4 bg-red-100 rounded-lg shadow">
-                <strong>📕 Ahli</strong>: Baca 20 buku dalam 1 bulan
-                <span class="text-sm text-gray-600 block">Hadiah: Badge "Reading Legend" + 250 Poin + Diskon Buku</span>
-                <a href="{{route ('challenge')}}" class="bg-green-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition ">
-                Coba Cek!
-                </a>`
-
-            </li>
-        </ul>
-    </div>
-
-    <!-- 🎁 Hadiah Eksklusif -->
-    <div class="max-w-4xl mx-auto mt-6 text-left bg-white text-gray-800 p-6 rounded-lg shadow-md">
-        <h3 class="text-2xl font-bold text-red-600">🎁 Hadiah Eksklusif</h3>
-        <ul class="mt-4 list-disc list-inside text-gray-700">
-            <li>🏅 E-Certificate untuk setiap level yang berhasil diselesaikan.</li>
-            <li>💰 Poin reward untuk ditukar dengan diskon dan hadiah menarik.</li>
-            <li>📚 Akses eksklusif ke koleksi buku premium selama 1 bulan.</li>
-        </ul>
-    </div>
-
-    <!-- 🚀 Gabung Sekarang -->
-    <div class="mt-8">
-        <a href="#" class="bg-purple-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-purple-700 transition">
-            🚀 Gabung Tantangan Sekarang!
-        </a>
-    </div>
-</section>
-
-
 <!-- Forum Diskusi -->
 <section class="bg-gray-200 py-16 text-center">
     <h2 class="text-4xl font-bold">💬 Forum Diskusi</h2>

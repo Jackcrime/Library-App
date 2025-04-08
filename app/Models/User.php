@@ -45,18 +45,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Mutator untuk password (hash otomatis saat menyimpan)
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
-
-    /**
      * Jika user tidak memiliki foto, berikan foto default
      */
     public function getFotoAttribute($value)
     {
         return $value ? asset('storage/' . $value) : asset('assets/default.jpg');
     }
+
+    public function favorites() {
+        return $this->hasMany(Favorite::class);
+    }
+    
+    public function bookmarks() {
+        return $this->hasMany(Bookmark::class);
+    }
+    
 }

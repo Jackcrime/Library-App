@@ -5,7 +5,11 @@
     x-data="{ darkMode: false }" :class="{'bg-gray-900 text-white': darkMode, 'bg-white text-gray-800': !darkMode}"
     :style="'background-image: url({{ asset('assets/background.jpg') }});'">
 
-    <div class="bg-opacity-80 backdrop-blur-lg shadow-xl rounded-2xl p-10 w-full max-w-3xl my-12 border border-gray-300">
+    <div class="shadow-xl rounded-2xl p-10 w-full max-w-3xl my-12"
+        :class="darkMode 
+        ? 'bg-gray-800 text-white border-gray-600' 
+        : 'bg-white text-gray-800 border-gray-300'">
+
         <h1 class="text-4xl font-extrabold text-center mb-6">
             <i class="fa-solid fa-user-circle" :class="{'text-blue-600': !darkMode, 'text-blue-300': darkMode}"></i> My Profile
         </h1>
@@ -16,7 +20,7 @@
 
             <!-- Profile Picture -->
             <div class="flex flex-col items-center mb-6">
-                <div class="relative w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-1 shadow-lg">
+                <div class="relative w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-500 p-1 shadow-lg">
                     <img id="profile-pic" src="{{ Auth::user()->foto ?: asset('assets/default.jpg') }}"
                         alt="User  Profile" class="w-full h-full rounded-full object-cover border-4 border-white">
                     <label for="foto" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer shadow-md">
@@ -35,57 +39,108 @@
             <div class="space-y-4">
                 <div>
                     <label for="nama" class="block text-sm font-medium">Name</label>
-                    <div class="flex items-center border border-gray-300 rounded-lg shadow-sm bg-white p-2">
-                        <i class="fa-solid fa-user text-gray-400 px-3"></i>
+                    <div class="flex items-center border rounded-lg shadow-sm p-2"
+                        :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'">
+
+                        <i class="fa-solid fa-user px-3"
+                            :class="darkmode ? 'text-gray-300' : 'text-gray-400'"></i>
                         <input type="text" id="nama" name="nama" value="{{ Auth::user()->nama }}"
-                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none" required>
+                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none"
+                            :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'" required>
                     </div>
                 </div>
 
+                <!-- Phone -->
                 <div>
                     <label for="telepon" class="block text-sm font-medium">Phone</label>
-                    <div class="flex items-center border border-gray-300 rounded-lg shadow-sm bg-white p-2">
-                        <i class="fa-solid fa-phone text-gray-400 px-3"></i>
+                    <div class="flex items-center border rounded-lg shadow-sm p-2"
+                        :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'">
+
+                        <i class="fa-solid fa-phone px-3"
+                            :class="darkmode ? 'text-gray-300' : 'text-gray-400'"></i>
                         <input type="text" id="telepon" name="telepon" value="{{ Auth::user()->telepon }}"
-                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none">
+                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none"
+                            :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'">
                     </div>
                 </div>
 
+                <!-- Address -->
                 <div>
                     <label for="alamat" class="block text-sm font-medium">Address</label>
-                    <div class="flex items-center border border-gray-300 rounded-lg shadow-sm bg-white p-2">
-                        <i class="fa-solid fa-location-dot text-gray-400 px-3"></i>
+                    <div class="flex items-center border rounded-lg shadow-sm p-2"
+                        :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'">
+
+                        <i class="fa-solid fa-location-dot px-3"
+                            :class="darkmode ? 'text-gray-300' : 'text-gray-400'"></i>
                         <textarea id="alamat" name="alamat"
-                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none">{{ Auth::user()->alamat }}</textarea>
+                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none"
+                            :class="darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-800'">{{ Auth::user()->alamat }}</textarea>
                     </div>
                 </div>
 
                 <!-- Password Fields -->
                 <div>
                     <label for="password" class="block text-sm font-medium">New Password</label>
-                    <div class="relative flex items-center border border-gray-300 rounded-lg shadow-sm bg-white p-2">
-                        <i class="fa-solid fa-lock text-gray-400 px-3"></i>
+                    <div class="relative flex items-center border rounded-lg shadow-sm p-2"
+                        :class="darkMode 
+            ? 'bg-gray-700 border-gray-600 text-white' 
+            : 'bg-white border-gray-300 text-gray-800'">
+
+                        <i class="fa-solid fa-lock px-3"
+                            :class="darkMode ? 'text-gray-300' : 'text-gray-400'"></i>
+
                         <input type="password" id="password" name="password" placeholder="Enter new password"
-                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none">
-                        <i id="togglePassword" class="fa-solid fa-eye text-gray-400 px-3 cursor-pointer absolute right-3"></i>
+                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none"
+                            :class="darkMode 
+                ? 'bg-gray-700 text-white' 
+                : 'bg-white text-gray-800'">
+
+                        <i id="togglePassword"
+                            class="fa-solid fa-eye cursor-pointer px-3 absolute right-3"
+                            :class="darkMode ? 'text-gray-300' : 'text-gray-400'"></i>
                     </div>
                 </div>
 
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium">Confirm New Password</label>
-                    <div class="relative flex items-center border border-gray-300 rounded-lg shadow-sm bg-white p-2">
-                        <i class="fa-solid fa-lock text-gray-400 px-3"></i>
+                    <div class="relative flex items-center border rounded-lg shadow-sm p-2"
+                        :class="darkMode 
+            ? 'bg-gray-700 border-gray-600 text-white' 
+            : 'bg-white border-gray-300 text-gray-800'">
+
+                        <i class="fa-solid fa-lock px-3"
+                            :class="darkMode ? 'text-gray-300' : 'text-gray-400'"></i>
+
                         <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm new password"
-                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none">
-                        <i id="toggleConfirmPassword" class="fa-solid fa-eye text-gray-400 px-3 cursor-pointer absolute right-3"></i>
+                            class="w-full px-4 py-2 border-none focus:ring-blue-500 focus:outline-none"
+                            :class="darkMode 
+                ? 'bg-gray-700 text-white' 
+                : 'bg-white text-gray-800'">
+
+                        <i id="toggleConfirmPassword"
+                            class="fa-solid fa-eye cursor-pointer px-3 absolute right-3"
+                            :class="darkMode ? 'text-gray-300' : 'text-gray-400'"></i>
                     </div>
                 </div>
+
             </div>
 
             <!-- Buttons -->
             <div class="mt-6 flex items-center justify-between space-x-3">
                 <button type="submit"
-                    class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg shadow-md hover:scale-105 transition-all font-semibold flex justify-center items-center gap-2">
+                    class="flex-1 bg-gradient-to-r from-blue-600 to-teal-600 text-white py-2 rounded-lg shadow-md hover:scale-105 transition-all font-semibold flex justify-center items-center gap-2">
                     <i class="fa-solid fa-save"></i> Update Profile
                 </button>
                 <button type="button" id="delete-photo-button"
@@ -97,8 +152,8 @@
 
         <!-- Dark/Light Mode Toggle -->
         <div class="flex justify-center mt-4">
-            <button @click="darkMode = !darkMode" class="bg-gray-800 text-white p-2 rounded-full">
-                <i class="fa-solid" :class="{'fa-sun': darkMode, 'fa-moon': !darkMode}"></i>
+            <button @click="darkMode = !darkMode" class="rounded-full">
+                <i class="fa-solid" :class="{'fa-sun text-white bg-gray-800': darkMode, 'fa-moon text-gray-900 bg-white': !darkMode}"></i>
             </button>
         </div>
     </div>

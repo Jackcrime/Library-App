@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\BookActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
@@ -39,19 +40,42 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-// Guest Pages
+// Guest Pages 
 Route::get('/guest/about', [GuestController::class, 'about'])->name('about');
 Route::get('/guest/contact', [GuestController::class, 'contact'])->name('contact');
-Route::get('/books', [GuestController::class, 'books'])->name('book');
-Route::post('/books/{book}/reviews', [GuestController::class, 'storeReview']);
-Route::get('/guest/challenge', [GuestController::class, 'challenge'])->name('challenge');
 Route::get('/guest/privacy', [GuestController::class, 'privacy'])->name('privacy');
-Route::get('/guest/support', action: [GuestController::class, 'support'])->name('support');
-Route::middleware(['auth'])->group(function () {
-    Route::get('/guest/profile', [GuestController::class, 'edit'])->name('profile');
-    Route::put('/guest/profile', [GuestController::class, 'update'])->name('profile.update');
-    Route::delete('/guest/profile/delete-photo', [GuestController::class, 'deletePhoto'])->name('profile.deletePhoto');
+Route::get('/guest/support', [GuestController::class, 'support'])->name('support');
+
+// Halaman Buku 
+Route::prefix('book')->group(function () {
+    Route::get('/', [GuestController::class, 'books'])->name('book');
+    Route::get('/all_books', [GuestController::class, 'allBooks'])->name('book.all');
+    Route::get('/status/{id}', [GuestController::class, 'status'])->name('book.status');
+    Route::post('/pinjam', [GuestController::class, 'pinjamBuku'])->name('guest.pinjam');
+    Route::get('/history', [GuestController::class, 'history'])->name('book.history');
 });
+
+// Route yang butuh login
+Route::middleware(['auth'])->group(function () {
+
+    // Profile
+    Route::prefix('guest')->group(function () {
+        Route::get('/profile', [GuestController::class, 'edit'])->name('profile');
+        Route::put('/profile', [GuestController::class, 'update'])->name('profile.update');
+        Route::delete('/profile/delete-photo', [GuestController::class, 'deletePhoto'])->name('profile.deletePhoto');
+    });
+
+    // Aksi Buku: Favorite & Bookmark
+    Route::prefix('book')->group(function () {
+        Route::post('/favorite/{book}', [BookActionController::class, 'favorite'])->name('book.favorite');
+        Route::post('/bookmark/{book}', [BookActionController::class, 'bookmark'])->name('book.bookmark');
+        Route::get('/favorite', [BookActionController::class, 'myFavorites'])->name('book.favorite');
+        Route::get('/bookmark', [BookActionController::class, 'myBookmarks'])->name('book.bookmark');
+    });
+});
+
+
+
 
 
 

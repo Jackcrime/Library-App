@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use App\Models\Buku;
-use App\Models\User;
+use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,15 +12,16 @@ use Illuminate\Support\Facades\Hash;
 
 class GuestController extends Controller
 {
-    public function Preview()
-    {
-        return view('preview');
-    }
-
     public function index()
     {
         return view('guest.index');
     }
+
+    public function preview()
+    {
+        return view('preview');
+    }
+
 
     public function about()
     {
@@ -31,34 +32,7 @@ class GuestController extends Controller
     {
         return view('guest.contact');
     }
-
-    public function books()
-    {
-         // Ambil semua kategori untuk ditampilkan pada filter
-         $kategoris = Kategori::all();
-
-         // Ambil Buku Populer berdasarkan peminjaman terbanyak
-         $bukusPopuler = Buku::withCount('pinjams')
-                             ->orderByDesc('pinjams_count') // urutkan berdasarkan jumlah peminjaman
-                             ->limit(8) // Ambil 8 buku populer
-                             ->get();
- 
-         // Ambil Buku Baru berdasarkan tanggal penambahan terbaru
-         $bukusBaru = Buku::orderByDesc('created_at') // urutkan berdasarkan tanggal dibuat
-                          ->limit(8) // Ambil 8 buku terbaru
-                          ->get();
-
-        $books = Buku::all(); // Ambil semua buku
- 
-         // Kirim data kategori, buku populer dan buku baru ke view
-         return view('guest.books', compact('kategoris', 'bukusPopuler', 'bukusBaru', 'books'));
-    }
-
-    public function challenge()
-    {
-        return view('guest.challenge');
-    }
-
+    
     public function privacy()
     {
         return view('guest.privacy');
@@ -68,6 +42,96 @@ class GuestController extends Controller
     {
         return view('guest.support');
     }
+
+    public function books(Request $request)
+{
+    $kategoris = Kategori::all();
+    $bukuPopuler = Buku::withCount('pinjams')->orderByDesc('pinjams_count')->limit(6)->get();
+    $bukuBaru = Buku::orderByDesc('created_at')->limit(6)->get();
+    $searchQuery = $request->get('query');
+    $categoryId = $request->get('kategori'); // gunakan nama parameter 'kategori' sesuai dari fetch()
+    $books = Buku::query();
+
+    if ($searchQuery) {
+        $books->where('judul', 'like', '%' . $searchQuery . '%');
+    }
+
+    if ($categoryId) {
+        $books->where('kategori_id', $categoryId);
+    }
+
+    $books = $books->get();
+
+    if ($request->ajax()) {
+        return view('guest.partials.book_list', compact('books'))->render();
+    }
+
+    return view('guest.books', compact('kategoris', 'bukuPopuler', 'bukuBaru', 'books'));
+}
+
+    public function allBooks()
+    {
+        $books = Buku::all(); // Retrieve all books
+        return view('book.all_books', compact('books')); // Return the view with all books
+    }
+
+    public function status($id)
+    {
+        $user = auth()->user();
+
+        $isFavorited = $user->favorites()->where('book_id', $id)->exists();
+        $isBookmarked = $user->bookmarks()->where('book_id', $id)->exists();
+
+        return response()->json([
+            'isFavorited' => $isFavorited,
+            'isBookmarked' => $isBookmarked,
+        ]);
+    }
+
+    public function pinjamBuku(Request $request)
+    {
+        $request->validate([
+            'buku_id' => 'required|exists:bukus,id',
+            'tgl_pinjam' => 'required|date',
+            'tgl_kembali' => 'required|date|after_or_equal:tgl_pinjam',
+        ]);
+
+        $cekPinjam = Pinjam::where('user_id', Auth::id())
+            ->where('buku_id', $request->buku_id)
+            ->where('status', 'pinjam')
+            ->first();
+
+        if ($cekPinjam) {
+            return redirect()->back()->with('error', 'Kamu sudah meminjam buku ini!');
+        }
+
+        Pinjam::create([
+            'buku_id' => $request->buku_id,
+            'user_id' => Auth::id(),
+            'tgl_pinjam' => $request->tgl_pinjam,
+            'tgl_kembali' => $request->tgl_kembali,
+            'status' => 'pinjam',
+        ]);
+
+        return redirect()->back()->with('success', 'Buku berhasil dipinjam!');
+    }
+
+
+    public function history()
+    {
+        $borrows = Pinjam::with('buku', 'pengembalian') 
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+    
+        $active = $borrows->filter(function ($item) {
+            return $item->status === 'pinjam' || is_null($item->tgl_kembali);
+        });
+    
+        return view('guest.book.history', compact('borrows', 'active'));
+    }
+    
+
 
     public function edit()
     {
@@ -107,7 +171,7 @@ class GuestController extends Controller
         return redirect()->route('profile')->with('success', 'Profile updated successfully.');
     }
 
-    public function deletePhoto(Request $request)
+    public function deletePhoto()
     {
         // Check if the user is authenticated
         if (!Auth::check()) {

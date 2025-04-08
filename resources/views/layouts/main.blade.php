@@ -156,14 +156,6 @@
                                             <option value="dark">Dark</option>
                                         </select>
                                     </div>
-                                    <!-- Progress Bar -->
-                                    <div class="mb-4">
-                                        <span class="block text-sm mb-1">Challenge Level</span>
-                                        <div class="w-full bg-gray-700 rounded-full h-3">
-                                            <div class="bg-blue-500 h-3 rounded-full" style="width: 75%;"></div>
-                                        </div>
-                                        <p class="text-gray-400 text-xs mt-1">Level 3 of 4</p>
-                                    </div>
                                 </div>
 
                                 <!-- Appearance Settings -->
