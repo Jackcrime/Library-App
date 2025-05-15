@@ -204,5 +204,5 @@ Proyek ini dibuat untuk keperluan pembelajaran dan pengembangan. Bebas dikembang
 
 ## ✨ Developer
 
-**Nama**: \[Nama Kamu]
+**Nama**: Crime as Backend, King Abdi as Frontend, Dudu as Frontend, Fernando as Design Graph <br>
 **GitHub**: [https://github.com/Jackcrime](https://github.com/Jackcrime)
