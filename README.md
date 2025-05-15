@@ -1,6 +1,3 @@
-Oke! Berikut adalah full isi `README.md` yang lengkap dan rapi, sudah aku sesuaikan dengan link GitHub milikmu. Tinggal kamu copy-paste langsung ke repo `https://github.com/Jackcrime/Library-App.git` :
-
-````
 # 📚 Library App – Aplikasi Peminjaman Buku Online
 
 Aplikasi web peminjaman buku online berbasis Laravel. User dapat meminjam buku secara online dan mengambilnya langsung di perpustakaan. Jika terlambat mengembalikan buku, sistem akan mengirimkan email denda otomatis sebesar Rp10.000.
@@ -62,7 +59,6 @@ Aplikasi web peminjaman buku online berbasis Laravel. User dapat meminjam buku s
 
 > ⚠️ Semua library frontend menggunakan **CDN** dan aplikasi harus dijalankan **secara online**.
 
----
 
 ## 🌐 Alur Akses Aplikasi
 
@@ -76,8 +72,6 @@ Aplikasi web peminjaman buku online berbasis Laravel. User dapat meminjam buku s
    - Bookmark atau tandai sebagai favorit
    - Pinjam buku secara online
 5. Email denda otomatis dikirim jika buku belum dikembalikan melewati batas waktu
-
----
 
 ## 📦 Instalasi & Setup
 
