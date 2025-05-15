@@ -34,7 +34,7 @@
 
 
             <h1 class="text-5xl font-extrabold mb-6">Selamat Datang!</h1>
-            <p class="text-xl mt-2 leading-relaxed text-gray-700 md:text-gray-800">
+            <p class="text-xl mt-2 leading-relaxed">
                 Jadilah bagian dari revolusi pembelajaran modern! Temukan cara baru untuk belajar dengan lebih cerdas, lebih menyenangkan, dan lebih efektif!
             </p>
 
@@ -42,7 +42,7 @@
             <a class="mt-8 px-6 py-3 bg-teal-500 text-white text-lg rounded-lg shadow-lg 
         transition-all hover:bg-teal-600 hover:scale-110 active:scale-100 
         focus:ring focus:ring-teal-300 focus:outline-none hover:font-bold text-center"
-                href="{{ route('preview.index') }}">
+                href="{{ url('/login') }}">
                 <span>Mulai Sekarang</span>
             </a>
 

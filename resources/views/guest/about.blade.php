@@ -54,7 +54,7 @@
 <!-- Misi & Visi -->
 <section class="bg-white py-20">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="p-8 bg-blue-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300 mb-12">
+        <div class="p-8 bg-blue-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300 mb-12" data-aos="fade-up">
             <h2 class="text-3xl font-semibold text-gray-900 mb-4">📕 Pendahuluan</h2>
             <p class="text-gray-700 text-lg">
                 Perpustakaan Cerdas Terpelajar adalah platform peminjaman buku yang menyediakan akses
@@ -65,14 +65,14 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="p-8 bg-green-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300">
+            <div class="p-8 bg-green-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300" data-aos="fade-right" data-aos-duration="100">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-4">🚀 Visi Kami</h2>
                 <p class="text-gray-700 text-lg">
                     Menjadi perpustakaan digital terdepan yang mendukung pembelajaran sepanjang hayat,
                     menciptakan ekosistem membaca yang mudah, inklusif, dan inovatif.
                 </p>
             </div>
-            <div class="p-8 bg-blue-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300">
+            <div class="p-8 bg-blue-50 shadow-lg rounded-lg hover:scale-105 transition-all duration-300" data-aos="fade-left">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-4">🎯 Misi Kami</h2>
                 <p class="text-gray-700 text-lg">
                     Menyediakan sumber bacaan berkualitas yang dapat diakses oleh siapa saja, kapan saja.
@@ -91,22 +91,22 @@
             Tim kami berdedikasi untuk memberikan pengalaman membaca terbaik, dengan latar belakang di bidang teknologi, pendidikan, dan literasi.
         </p>
         <div class="flex flex-wrap justify-center gap-8">
-            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64">
+            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64" data-aos="fade-up">
                 <img src="{{ asset('assets/default.jpg') }}" class="w-24 h-24 mx-auto rounded-full border-4 border-blue-300" alt="Tim">
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">King Abdiel</h3>
                 <p class="text-gray-600 text-sm">CEO & Founder</p>
             </div>
-            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64">
+            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64" data-aos="fade-up" data-aos-delay="100">
                 <img src="{{ asset('assets/default.jpg') }}" class="w-24 h-24 mx-auto rounded-full border-4 border-yellow-300" alt="Tim">
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">Fernando Misha</h3>
                 <p class="text-gray-600 text-sm">UX & UI Designer</p>
             </div>
-            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64">
+            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64" data-aos="fade-up" data-aos-delay="200">
                 <img src="{{ asset('assets/default.jpg') }}" class="w-24 h-24 mx-auto rounded-full border-4 border-green-300" alt="Tim">
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">Edward Steven</h3>
                 <p class="text-gray-600 text-sm">Front End Dev</p>
             </div>
-            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64">
+            <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-2xl transition-all duration-300 w-64" data-aos="fade-up" data-aos-delay="300">
                 <img src="{{ asset('assets/default.jpg') }}" class="w-24 h-24 mx-auto rounded-full border-4 border-red-300" alt="Tim">
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">Christ Diego</h3>
                 <p class="text-gray-600 text-sm">Back End Dev</p>
@@ -138,7 +138,7 @@
 </section>
 
 <div class="flex justify-center my-10 px-4">
-    <div class="overflow-hidden rounded-2xl shadow-lg transition-transform duration-300 transform w-full max-w-5xl">
+    <div class="overflow-hidden rounded-2xl shadow-lg transition-transform duration-300 transform w-full max-w-5xl" data-aos="fade-in">
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.894996452182!2d115.17399807416992!3d-8.628949687710056!2m3!1f0!2f0!3f0!2m3!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd238cfa9704293%3A0xb90785bd6a37c482!2sSMK%20Wira%20Harapan!5e1!3m2!1sid!2sid!4v1741750661116!5m2!1sid!2sid"
             width="100%"

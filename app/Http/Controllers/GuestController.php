@@ -16,13 +16,7 @@ class GuestController extends Controller
     {
         return view('guest.index');
     }
-
-    public function preview()
-    {
-        return view('preview');
-    }
-
-
+    
     public function about()
     {
         return view('guest.about');
@@ -46,10 +40,10 @@ class GuestController extends Controller
     public function books(Request $request)
 {
     $kategoris = Kategori::all();
-    $bukuPopuler = Buku::withCount('pinjams')->orderByDesc('pinjams_count')->limit(6)->get();
-    $bukuBaru = Buku::orderByDesc('created_at')->limit(6)->get();
+    $bukuPopuler = Buku::withCount('pinjams')->orderByDesc('pinjams_count')->limit(8)->get();
+    $bukuBaru = Buku::orderByDesc('created_at')->limit(8)->get();
     $searchQuery = $request->get('query');
-    $categoryId = $request->get('kategori'); // gunakan nama parameter 'kategori' sesuai dari fetch()
+    $categoryId = $request->get('kategori');
     $books = Buku::query();
 
     if ($searchQuery) {
@@ -60,7 +54,7 @@ class GuestController extends Controller
         $books->where('kategori_id', $categoryId);
     }
 
-    $books = $books->get();
+    $books = $books->limit(8)->get();
 
     if ($request->ajax()) {
         return view('guest.partials.book_list', compact('books'))->render();
@@ -71,8 +65,8 @@ class GuestController extends Controller
 
     public function allBooks()
     {
-        $books = Buku::all(); // Retrieve all books
-        return view('book.all_books', compact('books')); // Return the view with all books
+        $books = Buku::all();
+        return view('guest.book.all_books', compact('books')); 
     }
 
     public function status($id)

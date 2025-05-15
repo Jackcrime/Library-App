@@ -12,8 +12,8 @@
     <h1 class="text-4xl text-white font-bold text-center pt-10">Our Feature</h1>
     <div class="max-w-6xl mx-auto my-16 grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
         <div class="p-6 bg-white bg-opacity-90 rounded-lg shadow-lg text-center transform hover:scale-105 transition">
-            <h2 class="text-2xl font-bold text-gray-800">📖 Digital Books</h2>
-            <p class="mt-2 text-gray-600">Menampilkan daftar buku digital yang bisa dibaca langsung.</p>
+            <h2 class="text-2xl font-bold text-gray-800">📅 Reading Club</h2>
+            <p class="mt-2 text-gray-600">Bergabunglah dalam klub membaca mingguan untuk berdiskusi langsung tentang buku-buku pilihan.</p>
         </div>
         <div class="p-6 bg-white bg-opacity-90 rounded-lg shadow-lg text-center transform hover:scale-105 transition">
             <h2 class="text-2xl font-bold text-gray-800">🔖 Bookmark</h2>
@@ -25,6 +25,8 @@
         </div>
     </div>
 </div>
+
+
 
 <!-- News Section -->
 <section class="bg-sky-700 text-white py-12 text-center">

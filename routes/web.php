@@ -24,8 +24,6 @@ use Illuminate\Http\Request;
 */
 
 Route::get("/", [UserController::class, 'main'])->name('index');
-Route::get('/preview', [GuestController::class, 'preview'])->name('preview.index');
-
 // Authentication
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
@@ -146,6 +144,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/pengembalians', [PengembalianController::class, 'index'])->name('pengembalians.index');
     Route::post('/pengembalians/{id}/peringatan/{level}', [PengembalianController::class, 'peringatan'])->name('pengembalians.peringatan');
     Route::post('/pengembalians/{id}/lunas', [PengembalianController::class, 'lunas'])->name('pengembalians.lunas');
+
+    // Export PDF
+    Route::get('/export-kembali', [AdminController::class, 'exportKembaliPDF'])->name('admin.export.kembali');
 });
 
 /* 

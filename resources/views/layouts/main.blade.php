@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cerdas Terpelajar Library</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <style>
@@ -36,13 +38,84 @@
         }
 
         ::-webkit-scrollbar {
-            padding: 0px;
-            margin: 0px;
+            width: 0;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .dot {
+            display: inline-block;
+            animation: bounce 1.4s infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .dot:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes fadeScaleIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeScaleIn 0.5s ease-out forwards;
+        }
+
+        .animate-fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
         }
     </style>
 </head>
 
 <body class="relative">
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white animate-fade-in">
+        <div class="text-center">
+            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="mx-auto w-24 h-24 mb-4 animate-bounce rounded-full">
+            <h1 class="text-2xl font-bold text-gray-700">Cerdas Terpelajar Library</h1>
+            <div class="flex items-center justify-center">
+                <p class="text-gray-500 text-xl flex items-center gap-1 text-center">
+                    Loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+                </p>
+            </div>
+        </div>
+    </div>
     <!-- Navbar -->
     <nav id="navbar" class="fixed top-0 w-full bg-transparent text-white py-4 transition-colors duration-300 z-10">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-6">
@@ -220,7 +293,7 @@
                     <li><a href="{{ route('guest.dashboard') }}" class="text-gray-400 hover:text-blue-400 transition">Home</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-blue-400 transition">Blog</a></li>
                     <li><a href="{{ route ('support') }}" class="text-gray-400 hover:text-blue-400 transition">Support</a></li>
-                    <li><a href="{{ route ('privacy') }}" class ="text-gray-400 hover:text-blue-400 transition">Privacy Policy</a></li>
+                    <li><a href="{{ route ('privacy') }}" class="text-gray-400 hover:text-blue-400 transition">Privacy Policy</a></li>
                 </ul>
             </div>
 
@@ -261,6 +334,8 @@
 </body>
 
 <script>
+    AOS.init();
+
     window.addEventListener("scroll", function() {
         const navbar = document.getElementById("navbar");
         const profileButton = document.getElementById("profileButton");
@@ -288,6 +363,16 @@
             .catch(error => console.error('Error checking session:', error));
     }
     setInterval(checkSession, 30000);
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const splash = document.getElementById("splashScreen");
+        setTimeout(() => {
+            splash.classList.remove("animate-fade-in");
+            splash.classList.add("animate-fade-out");
+            setTimeout(() => splash.remove(), 2000);
+        }, 2000);
+    });
+
 </script>
 
 </html>

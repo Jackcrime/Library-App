@@ -84,26 +84,37 @@
         .catch(error => console.error('Error bookmarking the book:', error));
     }
 }">
-    <h1 class="text-5xl font-extrabold text-center mb-14 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-teal-400 to-emerald-200 animate-pulse drop-shadow-md">
+    <h1 class="text-5xl font-extrabold text-center mb-14 pt-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-teal-400 to-emerald-200 animate-pulse drop-shadow-md">
         <i class="fas fa-book-open mr-3"></i> Discovery Book
     </h1>
 
-    <!-- Filter Kategori + Search Bar -->
-    <div class="flex flex-col md:flex-row gap-4 justify-between mb-8">
+   <!-- Filter dan Search Bar -->
+    <div class="flex flex-col md:flex-row items-stretch gap-4 md:gap-6 mb-10">
         <!-- Input Pencarian -->
-        <input type="text" id="searchInput"
-            placeholder="Cari judul buku..."
-            class="w-full md:w-1/2 p-3 rounded-xl border border-blue-300 shadow focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300">
-
-        <!-- Dropdown Filter Kategori -->
-        <select id="filterKategori"
-            class="w-full md:w-1/3 p-3 rounded-xl border border-blue-300 shadow focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300">
-            <option value="">Semua Kategori</option>
-            @foreach ($kategoris as $kategori)
-            <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
-            @endforeach
-        </select>
+        <div class="relative w-full md:w-2/3">
+            <input type="text" id="searchInput"
+                placeholder="Cari judul buku..."
+                class="w-full p-3 pl-10 rounded-2xl border border-gray-300 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 placeholder-gray-500 text-sm md:text-base">
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <!-- Dropdown Kategori -->
+        <div class="relative w-full md:w-1/3">
+            <select id="filterKategori"
+                class="w-full p-3 pl-4 pr-10 rounded-2xl border border-gray-300 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 text-sm md:text-base appearance-none bg-white">
+                <option value="">Semua Kategori</option>
+                @foreach ($kategoris as $kategori)
+                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                @endforeach
+            </select>
+            <!-- Icon dropdown -->
+            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
     </div>
+
 
 
     <!-- Book List -->
@@ -195,7 +206,7 @@
     <div class="mt-16 text-center">
         <a href="{{ route('book.all') }}"
             class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-teal-500 to-indigo-500 text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform duration-300 shadow-xl hover:shadow-2xl">
-            <i class="fas fa-arrow-right animate-bounce"></i> See All Books
+            <i class="fas fa-arrow-right"></i> See All Books
         </a>
     </div>
 
